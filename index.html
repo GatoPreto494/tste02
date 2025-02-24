@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+    <!-- Descrição para SEO -->
+    <meta name="description" content="Peça os melhores lanches, porções e bebidas do Gato Preto diretamente do nosso delivery!">
+    <meta name="author" content="Gato Preto">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph (Facebook, WhatsApp, Instagram) -->
+    <meta property="og:title" content="Gato Preto - Lanches Delivery" />
+    <meta property="og:description" content="Os melhores lanches e porções com entrega rápida. Peça agora!" />
+    <meta property="og:image" content="https://i.postimg.cc/3xc99VZb/214997045-2821357384842614-4829086591709170560-n.jpg" /> <!-- URL real -->
+    <meta property="og:url" content="https://www.seusite.com" /> <!-- URL do seu site -->
+    <meta property="og:type" content="website" />
+</head>
+<body>
+    
+    <!-- Conteúdo do seu site -->
+</body>
+</html>
+
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gato Preto - Lanches Delivery" />
+    <meta name="twitter:description" content="Lanches deliciosos, entrega rápida! Peça já no nosso delivery." />
+    <meta name="twitter:image" content="https://www.gatopreto.com.br/imagens/logo.png" />
+
+    
+    
+    <!-- Ícone do site (Favicon) -->
+    <link rel="icon" type="image/png" href="https://www.gatopreto.com.br/favicon.png">
+    
+</head>
+<body>
+    <div class="titulo-container">
+        <h1>
+            Bem-vindo ao Gato Preto - Lanches Delivery!
+            <span id="carrinho-btn" onclick="toggleCarrinho()">🛒<span id="carrinho-contador">0</span></span>
+        </h1>
+    </div>
+
+    <!-- Pop-up do Carrinho -->
+    <div id="carrinho-popup">
+        <h2>🛍️ Seu Carrinho</h2>
+        <div id="carrinho-itens"></div>
+        <button onclick="askAddress()" class="confirmar-pedido-btn">Confirmar Pedido</button> 
+        <button onclick="fecharCarrinho()" style="background: gray; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 1em; margin-top: 10px; border-radius: 5px;">Fechar</button>
+    </div>
+</body>
+
+
+</html>
+
+    <style>
+
+        /* Configuração geral dos popups */
+#popup-endereco, #popup-confirmation, #popup-adicionais {
+    display: none;
+    background: rgba(0, 0, 0, 0.7); /* Fundo escurecido */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Caixa interna dos popups */
+#popup-endereco div, #popup-confirmation div, #popup-adicionais div {
+    background: #ffffff; /* Fundo branco como o container de lanches */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    /* Esconde a barra de rolagem */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+}
+
+#popup-endereco div::-webkit-scrollbar,
+#popup-confirmation div::-webkit-scrollbar,
+#popup-adicionais div::-webkit-scrollbar {
+    display: none; /* Chrome, Safari e Edge */
+}
+
+/* Estilo dos títulos */
+#popup-endereco h3, #popup-confirmation h3, #popup-adicionais h3 {
+    color: #181616; /* Mesmo tom do container de lanches */
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+/* Inputs dentro do popup de endereço */
+#popup-endereco input, #popup-endereco select, #popup-endereco textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+/* Botões dentro dos popups */
+#popup-endereco button, #popup-confirmation button, #popup-adicionais button {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Botão Confirmar (laranja, para ação principal) */
+#popup-endereco button:first-of-type,
+#popup-confirmation button:first-of-type,
+#popup-adicionais button:first-of-type {
+    background-color: orange;
+    color: white;
+}
+
+#popup-endereco button:first-of-type:hover,
+#popup-confirmation button:first-of-type:hover,
+#popup-adicionais button:first-of-type:hover {
+    background-color: darkorange;
+}
+
+/* Botão Fechar/Pular (cinza, para ações secundárias) */
+#popup-endereco button:last-of-type,
+#popup-confirmation button:last-of-type,
+#popup-adicionais button:last-of-type {
+    background-color: gray;
+    color: white;
+}
+
+#popup-endereco button:last-of-type:hover,
+#popup-confirmation button:last-of-type:hover,
+#popup-adicionais button:last-of-type:hover {
+    background-color: #444;
+}
+
+
+/* 🔹 Estilização do Resumo do Pedido */
+#order-summary {
+    background: #ffffff; /* Fundo branco como o container de lanches */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left; /* Mantém alinhamento legível */
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    color: #181616; /* Mesmo tom do container */
+    white-space: pre-line; /* Mantém a formatação de quebras de linha */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Efeito de profundidade */
+    max-width: 400px;
+    margin: auto;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+/* Destacar total do pedido */
+.total-destaque {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: orange; /* Mesma cor usada no botão principal */
+    text-align: center;
+    display: block;
+    margin-top: 10px;
+}
+
+
+
+#popup-adicionais {
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+#popup-adicionais div {
+    background: #ffffff; /* Mesmo fundo branco do container de lanches */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    /* Oculta a barra de rolagem */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+}
+
+#popup-adicionais div::-webkit-scrollbar {
+    display: none; /* Chrome, Safari e Edge */
+}
+
+/* Título e textos */
+#popup-adicionais h3 {
+    color: #181616; /* Mesmo tom do container de lanches */
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* Botões de adicionar/remover */
+#popup-adicionais .btn-increase,
+#popup-adicionais .btn-decrease {
+    background-color: #4CAF50; /* Verde padrão dos botões do menu */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+#popup-adicionais .btn-increase:hover,
+#popup-adicionais .btn-decrease:hover {
+    background-color: #45a049; /* Tom mais escuro ao passar o mouse */
+}
+
+/* Botões de ação */
+#popup-adicionais button {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Botão Confirmar */
+#popup-adicionais button:first-of-type {
+    background-color: orange;
+    color: white;
+}
+
+#popup-adicionais button:first-of-type:hover {
+    background-color: darkorange;
+}
+
+/* Botão Fechar/Pular */
+#popup-adicionais button:last-of-type {
+    background-color: gray;
+    color: white;
+}
+
+#popup-adicionais button:last-of-type:hover {
+    background-color: #444;
+}
+
+
+
+
+        /* Estiliza os pop-ups com fundo branco */
+#popup-endereco, #popup-confirmation, #popup-troco {
+    display: none; /* Mantém escondido até ser ativado */
+    background: rgba(0, 0, 0, 0.5); /* Fundo escurecido para dar contraste */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Caixa do pop-up */
+#popup-endereco div, #popup-confirmation div, #popup-troco div {
+    background: white; /* Fundo branco */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Efeito de profundidade */
+}
+
+/* Estiliza os inputs dentro dos pop-ups */
+#popup-endereco input, 
+#popup-endereco select, 
+#popup-endereco textarea, 
+#popup-troco input
+ {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+/* Estiliza os botões dentro dos pop-ups */
+#popup-endereco button, 
+#popup-confirmation button, 
+#popup-troco button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Botão de ação (ex: Confirmar) - Verde */
+.confirmar-pedido-btn {
+    background-color: green;
+    color: white;
+}
+
+.confirmar-pedido-btn:hover {
+    background-color: darkgreen;
+}
+
+/* Botão secundário (ex: Fechar) - Cinza */
+.fechar-btn {
+    background-color: gray;
+    color: white;
+}
+
+.fechar-btn:hover {
+    background-color: #444;
+}
+
+
+.btn-confirmar {
+    background-color: green !important;
+    color: white !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.btn-confirmar:hover {
+    background-color: darkgreen !important;
+}
+
+        /* Estilo base dos botões */
+.tab-buttons button {
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2); /* Sombra inicial para efeito 3D */
+    transform: translateY(0);
+}
+
+/* 🟡 Botão Lanches - Amarelo com opacidade */
+.tab-buttons button:nth-child(1) {
+    background-color: rgba(255, 255, 255, 0.85); /* Azul com opacidade igual */
+    color:#181616
+}
+
+
+/* 🟠 Botão Porções - Laranja com a mesma opacidade do amarelo */
+.tab-buttons button:nth-child(2) {
+    background-color: rgba(255, 255, 255, 0.85); /* Azul com opacidade igual */
+    color:#181616
+}
+
+
+/* 🔵 Botão Bebidas - Azul com a mesma opacidade do amarelo */
+.tab-buttons button:nth-child(3) {
+    background-color: rgba(255, 255, 255, 0.85); /* Azul com opacidade igual */
+    color:#181616
+}
+
+
+/* 🎨 Efeito 3D nos botões */
+.tab-buttons button:active {
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Sombra menor ao clicar */
+    transform: translateY(3px); /* Dá um efeito de "afundar" ao pressionar */
+}
+
+
+.titulo-container {
+    background-color: #ffffff;
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    margin: 0; /* Remove qualquer margem */
+    position: relative; /* Garante que a posição respeite o topo */
+}
+
+.titulo-container h1 {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+
+
+
+#observacao {
+    width: 390px;
+    height: 36px;
+    padding: 8px;  /* Ajusta o espaçamento interno */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none; /* Evita redimensionamento manual */
+    font-size: 14px; /* Ajusta o tamanho do texto */
+}
+
+
+#fundo-escuro {
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 998;
+}
+
+
+.body-bloqueado {
+    overflow: hidden; /* Impede rolagem */
+    pointer-events: none; /* Impede cliques no fundo */
+}
+
+#carrinho-popup {
+    pointer-events: all; /* Mantém o pop-up interativo */
+}
+
+
+#carrinho-btn {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+#carrinho-contador {
+    background: red;
+    color: white;
+    font-size: 0.7em;
+    font-weight: bold;
+    padding: 4px 6px;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    right: -10px;
+}
+
+#carrinho-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #444;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    display: none; /* Começa oculto */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
+}
+
+
+
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #222;
+    text-align: center;
+    padding: 20px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.menu {
+    max-height: 400px; /* Define uma altura fixa para a área rolável */
+    overflow-y: scroll; /* Ativa a rolagem vertical */
+    scrollbar-width: none; /* Esconde a barra no Firefox */
+    -ms-overflow-style: none; /* Esconde a barra no IE e Edge */
+}
+
+
+.tab-buttons {
+    position: sticky;
+    top: 0;
+    margin: 1px;
+    padding: 10px;
+    z-index: 500;
+}
+
+       
+.titulo {
+    color: #181616;
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            color:  ##0c0909;
+            text-align: center;
+            margin top:0;
+        }
+
+        #order-summary {
+        text-align: left;   /* Alinha o texto à esquerda */
+        margin-bottom: 20px; /* Dá um espaço abaixo do resumo */
+        font-size: 14px;    /* Ajusta o tamanho da fonte */
+        white-space: pre-line; /* Mantém a formatação de quebras de linha */
+        font-family: monospace; /* Garante alinhamento fixo entre caracteres */
+        }
+
+        
+
+        .total-destaque {
+            font-size: 1.5em; /* Aumenta o tamanho da fonte */
+            font-weight: bold; /* Deixa em negrito */
+            color: orange; /* Destaca a cor do total */
+        }
+
+
+
+        .category {
+            display: none;
+        }
+
+        .menu-items {
+    display: none;
+}
+.menu-items.active {
+    display: block;
+}
+
+        .active {
+            display: block;
+        }
+
+        .logo {
+            width: 150px;
+            margin: 20px auto;
+            display: block;
+        }
+        .menu {
+            max-width: 600px;
+            margin: auto;
+            background: #ece9e9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0;
+        }
+        
+        .tab-buttons button:hover {
+            background: #555;
+        }
+        .item {
+    background-color: #ffffff; /* Fundo branco */
+    border-radius: 8px; /* Bordas arredondadas */
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para efeito 3D */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Suaviza animação */
+}
+
+/* Efeito de "elevação" ao passar o mouse */
+.item:hover {
+    transform: translateY(-3px); /* Faz o item "subir" um pouco */
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.3); /* Sombra mais forte */
+}
+
+
+
+        .controls {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .btn {
+    width: 36px; /* Largura do botão */
+    height: 36px; /* Altura igual para manter o botão redondo */
+    border-radius: 50%; /* Faz o botão ficar circular */
+    font-size: 20px; /* Tamanho do texto */
+    font-weight: bold;
+    color: white; /* Cor do texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+
+/* Botão de aumentar (+) */
+.btn-increase {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    border: none;
+    width: 36px; /* Mantém o tamanho */
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.btn-increase:hover {
+    background-color: #45a049; /* Verde mais escuro no hover */
+}
+
+/* Botão de diminuir (-) */
+.btn-decrease {
+    background-color: #FF6347; /* Vermelho claro */
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.btn-decrease:hover {
+    background-color: #E04D3C; /* Vermelho mais escuro no hover */
+}
+
+/* Efeito ao clicar */
+.btn-increase:active,
+.btn-decrease:active {
+    transform: scale(0.9); /* Efeito de clique */
+}
+
+
+
+
+/* Efeito ao passar o mouse */
+.btn:hover {
+    background: darkorange;
+}
+
+input[type="number"] {
+    width: 40px;
+    text-align: center;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid ;  /* Cor ajustada */
+    font-size: 1em;
+    margin: 0 10px;
+}
+
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        
+
+        .description {
+            font-size: 0.9em;
+            color: #bbb;
+            margin-top: 5px;
+        }
+        .category {
+            display: none; /* Esconde as categorias por padrão */
+        }
+        .active {
+            display: block; /* Exibe a categoria ativa */
+        }
+
+        
+        #popup-endereco input, #popup-endereco select {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #444;
+            background-color: #333;
+            color: white;
+        }
+        #popup-endereco button {
+            background: orange;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        #popup-endereco button:hover {
+            background: darkorange;
+        }
+        #troco-div {
+            display: none;
+        }
+
+        /* Estilo para o botão "Confirmar Pedido" */
+        .confirmar-pedido-btn {
+            background: rgb(62, 182, 15);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .confirmar-pedido-btn:hover {
+            background: darkorange;
+        }
+
+        /* Estilo para o Popup de Confirmação de Pedido */
+        #popup-confirmation {
+            display: none;
+            background: rgba(0, 0, 0, 0.7);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #popup-confirmation div {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: 0;
+            width: 100%;
+            max-width: 600px;
+        }
+        #popup-confirmation button {
+            background: orange;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        #popup-confirmation button:hover {
+            background: darkorange;
+        }
+        #popup-confirmation .cancel {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <!-- Abas para selecionar categorias -->
+    <div class="tab-buttons">
+        <button onclick="showMenu('lanches')">Lanches 🍔</button>
+        <button onclick="showMenu('porcoes')">Porções 🍟</button>
+        <button onclick="showMenu('bebidas')">Bebidas 🥤</button>
+    </div>
+
+    <!-- Menu -->
+    <div class="menu">
+        <!-- Categoria de Lanches -->
+        <div class="menu-items" id="lanches">
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Queijo Quente Salada', 'increase')">+</button>
+                    <input type="number" id="Queijo Quente Salada-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Queijo Quente Salada', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Queijo Quente Salada - R$20</span>
+                    <p class="description">Muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Queijo Quente', 'increase')">+</button>
+                    <input type="number" id="Queijo Quente-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Queijo Quente', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Queijo Quente - R$19</span>
+                    <p class="description">Muçarela, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Misto Quente', 'increase')">+</button>
+                    <input type="number" id="Misto Quente-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Misto Quente', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Misto Quente - R$19</span>
+                    <p class="description">Muçarela, presunto, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Bauru', 'increase')">+</button>
+                    <input type="number" id="Bauru-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Bauru', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Bauru - R$20</span>
+                    <p class="description">Muçarela, presunto, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Americano', 'increase')">+</button>
+                    <input type="number" id="Americano-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Americano', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Americano - R$22</span>
+                    <p class="description">Muçarela, presunto, ovo, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Mistão', 'increase')">+</button>
+                    <input type="number" id="Mistão-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Mistão', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Mistão - R$23</span>
+                    <p class="description">Muçarela, presunto, milho, bacon, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Salada', 'increase')">+</button>
+                    <input type="number" id="X-Salada-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Salada', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Salada - R$22</span>
+                    <p class="description">Hambúrguer, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon', 'increase')">+</button>
+                    <input type="number" id="X-Bacon-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Bacon - R$26</span>
+                    <p class="description">Hambúrguer, bacon, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Burguer', 'increase')">+</button>
+                    <input type="number" id="X-Burguer-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Burguer', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Burguer - R$21</span>
+                    <p class="description">Hambúrguer, muçarela, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Burguer Duplo', 'increase')">+</button>
+                    <input type="number" id="X-Burguer Duplo-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Burguer Duplo', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Burguer Duplo - R$30</span>
+                    <p class="description">Dois hambúrgueres, muçarela, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Egg', 'increase')">+</button>
+                    <input type="number" id="X-Egg-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Egg', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Egg - R$24</span>
+                    <p class="description">Hambúrguer, ovo, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon Egg', 'increase')">+</button>
+                    <input type="number" id="X-Bacon Egg-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon Egg', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Bacon Egg - R$28</span>
+                    <p class="description">Hambúrguer, bacon, ovo, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon Calabresa', 'increase')">+</button>
+                    <input type="number" id="X-Bacon Calabresa-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Bacon Calabresa', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Bacon Calabresa - R$28</span>
+                    <p class="description">Hambúrguer, calabresa, bacon, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Crock', 'increase')">+</button>
+                    <input type="number" id="X-Crock-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Crock', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Crock - R$24</span>
+                    <p class="description">Hambúrguer, muçarela, batata palha, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Lanche da Casa', 'increase')">+</button>
+                    <input type="number" id="Lanche da Casa-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('Lanche da Casa', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>Lanche da Casa - R$29</span>
+                    <p class="description">Dois hambúrgueres, calabresa, muçarela, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Calabresa', 'increase')">+</button>
+                    <input type="number" id="X-Calabresa-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Calabresa', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Calabresa - R$22</span>
+                    <p class="description">Calabresa, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Tudo', 'increase')">+</button>
+                    <input type="number" id="X-Tudo-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Tudo', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Tudo - R$35</span>
+                    <p class="description">Hambúrguer, bacon, milho, filé de frango, ovo, presunto, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Crock', 'increase')">+</button>
+                    <input type="number" id="X-Frango Crock-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Crock', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Crock - R$26</span>
+                    <p class="description">Filé de frango, batata palha, muçarela, maionese</p>
+                </div>
+            </div>
+
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Framburguer', 'increase')">+</button>
+                    <input type="number" id="X-Framburguer-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Framburguer', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Framburguer - R$32</span>
+                    <p class="description">Filé de frango, hambúrguer, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Bacon Egg', 'increase')">+</button>
+                    <input type="number" id="X-Frango Bacon Egg-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Bacon Egg', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Bacon Egg - R$28</span>
+                    <p class="description">Filé de frango, bacon, ovo, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango', 'increase')">+</button>
+                    <input type="number" id="X-Frango-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango - R$23</span>
+                    <p class="description">Filé de frango, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Catupiry', 'increase')">+</button>
+                    <input type="number" id="X-Frango Catupiry-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Catupiry', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Catupiry - R$30</span>
+                    <p class="description">Filé de frango, catupiry, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Cheddar', 'increase')">+</button>
+                    <input type="number" id="X-Frango Cheddar-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Cheddar', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Cheddar - R$30</span>
+                    <p class="description">Filé de frango, cheddar, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Catupiry Milho', 'increase')">+</button>
+                    <input type="number" id="X-Frango Catupiry Milho-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Catupiry Milho', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Catupiry Milho - R$32</span>
+                    <p class="description">Filé de frango, catupiry, milho, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Cheddar Milho', 'increase')">+</button>
+                    <input type="number" id="X-Frango Cheddar Milho-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Cheddar Milho', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Cheddar Milho - R$32</span>
+                    <p class="description">Filé de frango, cheddar, milho, muçarela</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Egg', 'increase')">+</button>
+                    <input type="number" id="X-Frango Egg-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Egg', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Egg - R$25</span>
+                    <p class="description">Filé de frango, ovo, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Bacon', 'increase')">+</button>
+                    <input type="number" id="X-Frango Bacon-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateQuantity('X-Frango Bacon', 'decrease')">-</button>
+                </div>
+                <div class="text-content">
+                    <span>X-Frango Bacon - R$25</span>
+                    <p class="description">Filé de frango, bacon, muçarela, alface, tomate, maionese</p>
+                </div>
+            </div>
+        
+    </div>
+    
+
+    <!-- Categoria de Porções -->
+    <div class="menu-items" id="porcoes">
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataInteira', 'increase')">+</button>
+                <input type="number" id="BatataInteira-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataInteira', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata (Inteira) - R$28</span>
+                <p class="description">Porção de batatas fritas crocantes.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataMeia', 'increase')">+</button>
+                <input type="number" id="BatataMeia-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataMeia', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata 1/2 Porção - R$17</span>
+                <p class="description">Porção de batatas fritas crocantes.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoInteira', 'increase')">+</button>
+                <input type="number" id="BatataQueijoInteira-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoInteira', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Queijo (Inteira) - R$35</span>
+                <p class="description">Porção de batatas com queijo derretido.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoMeia', 'increase')">+</button>
+                <input type="number" id="BatataQueijoMeia-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoMeia', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Queijo (1/2 Porção) - R$25</span>
+                <p class="description">Porção de batatas com queijo derretido.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataBaconInteira', 'increase')">+</button>
+                <input type="number" id="BatataBaconInteira-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataBaconInteira', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Bacon (Inteira) - R$35</span>
+                <p class="description">Porção de batatas com bacon crocante.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataBaconMeia', 'increase')">+</button>
+                <input type="number" id="BatataBaconMeia-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataBaconMeia', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Bacon (1/2 Porção) - R$25</span>
+                <p class="description">Porção de batatas com bacon crocante.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoBaconInteira', 'increase')">+</button>
+                <input type="number" id="BatataQueijoBaconInteira-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoBaconInteira', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Queijo e Bacon (Inteira) - R$40</span>
+                <p class="description">Porção de batatas com queijo derretido e bacon crocante.</p>
+            </div>
+        </div>
+        
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoBaconMeia', 'increase')">+</button>
+                <input type="number" id="BatataQueijoBaconMeia-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('BatataQueijoBaconMeia', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Batata Queijo e Bacon (1/2 Porção) - R$30</span>
+                <p class="description">Porção de batatas com queijo derretido e bacon crocante.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Categoria de Bebidas -->
+    <div class="menu-items" id="bebidas">
+        <div class="item">
+            <div class="controls">
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('Refrigerante', 'increase')">+</button>
+                <input type="number" id="Refrigerante-quantity" value="0" readonly>
+                <button class="btn btn-increase"
+
+ onclick="updateQuantity('Refrigerante', 'decrease')">-</button>
+            </div>
+            <div class="text-content">
+                <span>Refrigerante</span>
+                <p class="description">Refrigerante gelado para acompanhar seu lanche.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Botão para confirmar o pedido -->
+    <button class="confirmar-pedido-btn" id="confirmar-pedido" onclick="askAddress()">Confirmar Pedido</button>
+
+    <!-- Popup para inserção de endereço -->
+    <div id="popup-endereco">
+        <div>
+            <h3>Digite seu endereço para entrega</h3>
+            <input type="text" id="nome" placeholder="Nome" required="">
+            <input type="text" id="endereco" placeholder="Endereço de entrega" required="">
+            <input type="text" id="bairro" placeholder="Bairro" required="">
+            <input type="text" id="numero" placeholder="Número" required="">
+            <input type="text" id="complemento" placeholder="Complemento (opcional)">
+
+            
+            <h4>Forma de Pagamento</h4>
+            <select id="forma-pagamento" required>
+                <option value="" selected disabled>Selecionar pagamento</option>
+                <option value="pix">Pix</option>
+                <option value="maquina">Máquina</option>
+                <option value="dinheiro">Dinheiro</option>
+            </select>
+            
+            <label for="observacao">Alguma observação que gostaria de passar sobre seu pedido?</label>
+            <p id="erro-pagamento" style="color: red; display: none;">⚠️ Selecione uma forma de pagamento antes de continuar!</p>
+            <textarea id="observacao" name="observacao" placeholder="Exemplo: Sem alface,sem maionese, entregar na portaria..."></textarea>
+            <button onclick="checkPaymentMethod()">Confirmar Endereço e Pagamento</button>
+            <button onclick="closeAddressPopup()" style="background: gray; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 1em; margin-top: 10px; border-radius: 5px;">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Popup para perguntar sobre o troco -->
+    <div id="popup-troco" style="display: none; background: rgba(0, 0, 0, 0.7); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: #444; padding: 20px; border-radius: 10px; text-align: center; width: 100%; max-width: 400px;">
+            <h3>Você precisará de troco?</h3>
+            <button onclick="showTrocoInput(true)" style="background: orange; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Sim</button>
+            <button onclick="showTrocoInput(false)" style="background: gray; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Não</button>
+            
+            <!-- Campo para informar valor -->
+            <div id="troco-input-div" style="display: none; margin-top: 10px;">
+                <label for="valor-troco">Para qual valor precisará?</label>
+                <input type="number" id="valor-troco" placeholder="Ex: 50,00" style="width: 80%; padding: 5px; background-color: #333; color: white; border: 1px solid #555; text-align: center;">
+                <button onclick="confirmTroco()" style="background: orange; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin-top: 10px;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Popup para seleção de adicionais -->
+    <div id="popup-adicionais" style="display: none; background: rgba(0, 0, 0, 0.7); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: #444; padding: 20px; border-radius: 10px; text-align: center; width: 100%; max-width: 400px;">
+            <h3>Escolha seus adicionais</h3>
+
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Hamburguer', 'increase')">+</button>
+                    <input type="number" id="Hamburguer-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Hamburguer', 'decrease')">-</button>
+                </div>
+                <span>Hambúrguer (+R$ 9,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('BatataPalha', 'increase')">+</button>
+                    <input type="number" id="BatataPalha-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('BatataPalha', 'decrease')">-</button>
+                </div>
+                <span>Batata Palha (+R$ 3,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('CheddarCatupiry', 'increase')">+</button>
+                    <input type="number" id="CheddarCatupiry-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('CheddarCatupiry', 'decrease')">-</button>
+                </div>
+                <span>Cheddar ou Catupiry (+R$ 7,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Milho', 'increase')">+</button>
+                    <input type="number" id="Milho-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Milho', 'decrease')">-</button>
+                </div>
+                <span>Milho (+R$ 2,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Salada', 'increase')">+</button>
+                    <input type="number" id="Salada-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Salada', 'decrease')">-</button>
+                </div>
+                <span>Salada (+R$ 2,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Bacon', 'increase')">+</button>
+                    <input type="number" id="Bacon-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Bacon', 'decrease')">-</button>
+                </div>
+                <span>Bacon (+R$ 7,00)</span>
+            </div>
+            
+            <div class="item">
+                <div class="controls">
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Maionese', 'increase')">+</button>
+                    <input type="number" id="Maionese-quantity" value="0" readonly>
+                    <button class="btn btn-increase"
+
+ onclick="updateAdditional('Maionese', 'decrease')">-</button>
+                </div>
+                <span>Maionese (+R$ 3,00)</span>
+            </div>
+            
+
+            <button onclick="confirmAdditionalSelection()" style="margin-top: 15px; background: orange; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Confirmar Adicionais</button>
+            <button onclick="confirmAdditionalSelection()" style="margin-top: 10px; background: gray; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Pular</button>
+        </div>
+    </div>
+
+
+    <!-- Popup para confirmação do pedido -->
+    <div id="popup-confirmation">
+        <div>
+            <h3>Você deseja confirmar seu pedido?</h3>
+            <div id="order-summary">
+                ✨ Resumo do Pedido ✨ <br>
+                1x Misto Quente ............................ R$ 12,90 <br><br>
+
+                ***************************************************** <br><br>
+
+                📛 Nome: <span id="summary-nome">-</span><br>
+                📍 Endereço: <span id="summary-endereco">-</span><br>
+                🏘 Bairro: <span id="summary-bairro">-</span><br>
+                💳 Forma de Pagamento: <span id="summary-pagamento">-</span><br>
+            </div>
+            <button onclick="sendToWhatsApp()">Ok</button>
+            <button class="cancel" onclick="cancelRequest()">Cancelar</button> <!-- Aqui foi corrigido -->
+        </div>
+    </div>
+
+    <script>
+        function cancelRequest() {
+            let confirmCancel = confirm("Tem certeza de que deseja cancelar o pedido?");
+            if (confirmCancel) {
+                document.getElementById("popup-confirmation").style.display = "none"; // Fecha o popup de confirmação
+            }
+        }
+    </script>
+
+
+    <script>
+        let carrinho = {}; // Armazena os itens antes da confirmação
+        let carrinhoTemp = {}; // Armazena as modificações antes da confirmação
+        let totalItens = 0;
+
+
+        // Função para alternar entre as categorias de menu
+    function showMenu(menu) {
+    const allMenus = document.querySelectorAll('.menu-items');
+    allMenus.forEach(menuItem => menuItem.classList.remove('active')); // Remove a classe active de todos os menus
+    
+    const selectedMenu = document.getElementById(menu);
+    selectedMenu.classList.add('active'); // Adiciona a classe active ao menu selecionado
+
+    // Reseta a rolagem do container principal
+    document.querySelector('.menu').scrollTop = 0;
+}
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    console.log("Página carregada!");
+    console.log(carrinho); // Deve exibir um objeto vazio {}
+});
+
+
+    // Função para fechar o popup de endereço sem confirmar o pedido
+       function closeAddressPopup() {
+           document.getElementById("popup-endereco").style.display = "none";
+       }
+
+       // Função para exibir um alerta ao cancelar o pedido
+       function cancelRequest() {
+           let confirmCancel = confirm("Tem certeza de que deseja cancelar o pedido?");
+           if (confirmCancel) {
+               document.getElementById("popup-confirmation").style.display = "none"; // Fecha o popup
+           }
+       }
+
+    // Função para verificar a forma de pagamento e abrir o pop-up de troco
+    function checkPaymentMethod() {
+    let paymentMethod = document.getElementById("forma-pagamento").value;
+    let erroPagamento = document.getElementById("erro-pagamento");
+
+    if (!paymentMethod) {
+        erroPagamento.style.display = "block"; // Exibe o aviso de erro
+        return; // Impede o avanço
+    } else {
+        erroPagamento.style.display = "none"; // Esconde o erro se já escolheu
+    }
+
+    // Verifica se o cliente já aceitou ou negou a localização antes
+    if (!localStorage.getItem("localizacaoConfirmada")) {
+        // Exibe um pop-up antes de pedir a localização
+        if (!confirm("Precisamos da sua localização para calcular a taxa de entrega. Deseja permitir?")) {
+            alert("Você precisa permitir a localização para continuar.");
+            return;
+        }
+    }
+
+    // Obtém a localização do usuário
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                console.log(`Localização do usuário: ${userLat}, ${userLng}`);
+
+                // Salva no localStorage que a permissão foi concedida (não perguntará de novo)
+                localStorage.setItem("localizacaoConfirmada", "true");
+
+                // Calcula a taxa de entrega
+                calcularTaxaEntrega(userLat, userLng);
+
+                // Após calcular, segue com o pedido
+                proceedToOrder();
+            },
+            function (error) {
+                console.error("Erro ao obter localização:", error);
+                alert("⚠️ Você precisa permitir a localização para continuar!");
+            }
+        );
+    } else {
+        alert("Geolocalização não é suportada pelo seu navegador.");
+    }
+}
+
+
+
+    window.addEventListener("scroll", function() {
+    let header = document.querySelector("header");
+    if (window.scrollY > 50) { // Se rolar mais de 50px, some
+        header.classList.add("hidden");
+    } else {
+        header.classList.remove("hidden");
+    }
+});
+
+
+
+
+    // Exibe ou oculta o campo de valor do troco
+    function showTrocoInput(needsChange) {
+        if (needsChange) {
+            document.getElementById("troco-input-div").style.display = "block";
+        } else {
+            localStorage.setItem("troco", "Não precisa"); // Armazena a resposta
+            document.getElementById("popup-troco").style.display = "none";
+            proceedToOrder(); // Continua para o pedido
+        }
+    }
+
+    // Confirma o valor do troco e segue para o pedido
+    function confirmTroco() {
+        let trocoValue = document.getElementById("valor-troco").value;
+        if (trocoValue.trim() === "" || isNaN(trocoValue) || trocoValue <= 0) {
+            alert("Por favor, informe um valor válido para o troco.");
+            return;
+        }
+
+        sessionStorage.setItem("troco", "Precisa de troco para R$ " + parseFloat(trocoValue).toFixed(2));
+        document.getElementById("popup-troco").style.display = "none";
+        proceedToOrder(); // Continua para o pedido
+    }
+
+
+    // Exibe o popup de adicionais antes do resumo do pedido
+    function askForExtras() {
+        document.getElementById("popup-endereco").style.display = "none"; // Fecha o popup de endereço
+        document.getElementById("popup-adicionais").style.display = "flex"; // Exibe o popup de adicionais
+    }
+
+    // Atualiza a quantidade de adicionais
+    function updateAdditional(itemName, action) {
+        const quantityInput = document.getElementById(`${itemName}-quantity`);
+        let currentQuantity = parseInt(quantityInput.value);
+
+        if (action === 'increase') {
+            quantityInput.value = currentQuantity + 1;
+        } else if (action === 'decrease' && currentQuantity > 0) {
+            quantityInput.value = currentQuantity - 1;
+        }
+    }
+
+    // Confirma os adicionais e exibe o resumo do pedido
+    function confirmAdditionalSelection() {
+    document.getElementById("popup-adicionais").style.display = "none"; // Fecha o popup de adicionais
+    document.getElementById("popup-confirmation").style.display = "flex"; // Abre o resumo do pedido
+
+    let orderSummary = "✨ Resumo do Pedido ✨\n\n";
+    let total = 0;
+
+    // Adiciona os itens principais do pedido
+        let items = [
+    // Lanches (27)
+    { name: "Queijo Quente Salada", quantity: parseInt(document.getElementById("Queijo Quente Salada-quantity").value), price: 20.00 },
+    { name: "Queijo Quente", quantity: parseInt(document.getElementById("Queijo Quente-quantity").value), price: 19.00 },
+    { name: "Misto Quente", quantity: parseInt(document.getElementById("Misto Quente-quantity").value), price: 19.00 },
+    { name: "Bauru", quantity: parseInt(document.getElementById("Bauru-quantity").value), price: 20.00 },
+    { name: "Americano", quantity: parseInt(document.getElementById("Americano-quantity").value), price: 22.00 },
+    { name: "Mistão", quantity: parseInt(document.getElementById("Mistão-quantity").value), price: 23.00 },
+    { name: "X-Salada", quantity: parseInt(document.getElementById("X-Salada-quantity").value), price: 22.00 },
+    { name: "X-Bacon", quantity: parseInt(document.getElementById("X-Bacon-quantity").value), price: 26.00 },
+    { name: "X-Burguer", quantity: parseInt(document.getElementById("X-Burguer-quantity").value), price: 21.00 },
+    { name: "X-Burguer Duplo", quantity: parseInt(document.getElementById("X-Burguer Duplo-quantity").value), price: 30.00 },
+    { name: "X-Egg", quantity: parseInt(document.getElementById("X-Egg-quantity").value), price: 24.00 },
+    { name: "X-Bacon Egg", quantity: parseInt(document.getElementById("X-Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Bacon Calabresa", quantity: parseInt(document.getElementById("X-Bacon Calabresa-quantity").value), price: 28.00 },
+    { name: "X-Crock", quantity: parseInt(document.getElementById("X-Crock-quantity").value), price: 24.00 },
+    { name: "Lanche da Casa", quantity: parseInt(document.getElementById("Lanche da Casa-quantity").value), price: 29.00 },
+    { name: "X-Calabresa", quantity: parseInt(document.getElementById("X-Calabresa-quantity").value), price: 22.00 },
+    { name: "X-Tudo", quantity: parseInt(document.getElementById("X-Tudo-quantity").value), price: 35.00 },
+    { name: "X-Frango Crock", quantity: parseInt(document.getElementById("X-Frango Crock-quantity").value), price: 26.00 },
+    { name: "X-Framburguer", quantity: parseInt(document.getElementById("X-Framburguer-quantity").value), price: 32.00 },
+    { name: "X-Frango Bacon Egg", quantity: parseInt(document.getElementById("X-Frango Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Frango", quantity: parseInt(document.getElementById("X-Frango-quantity").value), price: 23.00 },
+    { name: "X-Frango Catupiry", quantity: parseInt(document.getElementById("X-Frango Catupiry-quantity").value), price: 30.00 },
+    { name: "X-Frango Cheddar", quantity: parseInt(document.getElementById("X-Frango Cheddar-quantity").value), price: 30.00 },
+    { name: "X-Frango Catupiry Milho", quantity: parseInt(document.getElementById("X-Frango Catupiry Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Cheddar Milho", quantity: parseInt(document.getElementById("X-Frango Cheddar Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Egg", quantity: parseInt(document.getElementById("X-Frango Egg-quantity").value), price: 25.00 },
+    { name: "X-Frango Bacon", quantity: parseInt(document.getElementById("X-Frango Bacon-quantity").value), price: 25.00 },
+
+    // Porções (8)
+    { name: "Batata Inteira", quantity: parseInt(document.getElementById("BatataInteira-quantity").value), price: 28.00 },
+    { name: "Batata 1/2 Porção", quantity: parseInt(document.getElementById("BatataMeia-quantity").value), price: 17.00 },
+    { name: "Batata Queijo (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoInteira-quantity").value), price: 35.00 },
+    { name: "Batata Queijo (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoMeia-quantity").value), price: 25.00 },
+    { name: "Batata Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataBaconInteira-quantity").value), price: 35.00 },
+    { name: "Batata Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataBaconMeia-quantity").value), price: 25.00 },
+    { name: "Batata Queijo e Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoBaconInteira-quantity").value), price: 40.00 },
+    { name: "Batata Queijo e Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoBaconMeia-quantity").value), price: 30.00 },
+
+    // Refrigerante (1)
+    { name: "Refrigerante", quantity: parseInt(document.getElementById("Refrigerante-quantity").value), price: 5.00 }
+];
+
+// Agora você pode usar esse array para calcular o total ou exibir o resumo do pedido.
+
+
+items.forEach(item => {
+        if (item.quantity > 0) {
+            total += item.quantity * item.price;
+            orderSummary += `*${item.quantity}x* ${item.name}\n`;
+        }
+    });
+
+        // Adicionais
+        let extras = [
+    { name: "Hamburguer", quantity: parseInt(document.getElementById("Hamburguer-quantity").value), price: 9.00 },
+    { name: "Batata Palha", quantity: parseInt(document.getElementById("BatataPalha-quantity").value), price: 3.00 },
+    { name: "Cheddar ou Catupiry", quantity: parseInt(document.getElementById("CheddarCatupiry-quantity").value), price: 7.00 },
+    { name: "Milho", quantity: parseInt(document.getElementById("Milho-quantity").value), price: 2.00 },
+    { name: "Salada", quantity: parseInt(document.getElementById("Salada-quantity").value), price: 2.00 },
+    { name: "Bacon", quantity: parseInt(document.getElementById("Bacon-quantity").value), price: 7.00 },
+    { name: "Maionese", quantity: parseInt(document.getElementById("Maionese-quantity").value), price: 3.00 }
+];
+
+
+        extras.forEach(extra => {
+            if (extra.quantity > 0) {
+                total += extra.quantity * extra.price;
+                orderSummary += `*${extra.quantity}x* ${extra.name} (Adicional)\n`;
+            }
+        });
+
+       // Captura o valor do campo de observação
+       let observacaoInput = document.getElementById("observacao");
+       let observacao = observacaoInput ? observacaoInput.value.trim() : "";
+
+// Se houver uma observação, adiciona ao resumo
+if (observacao !== "") {
+    orderSummary += `\n⚠️⚠️ Observação: ${observacao} ⚠️⚠️\n`;
+}
+
+orderSummary += `<p class="total-destaque">💰 Total: R$ ${total.toFixed(2)}</p>`;
+
+
+document.getElementById("order-summary").innerHTML = orderSummary;
+}
+
+
+    // Exibe a primeira categoria (Lanches) ao carregar a página
+    window.onload = function() {
+        showMenu('lanches');  // Chama a função para mostrar a categoria "Lanches" ao carregar a página
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadUserData(); // Carrega os dados salvos no localStorage
+
+        document.getElementById("forma-pagamento").addEventListener("change", function () {
+            document.getElementById("troco-div").style.display = this.value === "dinheiro" ? "block" : "none";
+        });
+    });
+
+    function loadUserData() {
+        const nome = localStorage.getItem("nome");
+        const endereco = localStorage.getItem("endereco");
+        const bairro = localStorage.getItem("bairro");
+        const numero = localStorage.getItem("numero");
+        const complemento = localStorage.getItem("complemento");
+        const pagamento = localStorage.getItem("pagamento");
+
+        if (nome && endereco && bairro && numero) {
+            // Se já tiver dados, preenche os campos
+            document.getElementById("nome").value = nome;
+            document.getElementById("endereco").value = endereco;
+            document.getElementById("bairro").value = bairro;
+            document.getElementById("numero").value = numero;
+            document.getElementById("complemento").value = complemento || "";
+            document.getElementById("forma-pagamento").value = ""; // Começa SEM seleção
+            // Esconde o formulário de endereço, já que os dados foram preenchidos antes
+            document.getElementById("popup-endereco").style.display = "none";
+        }
+    }
+
+    function updateQuantity(itemName, action) {
+    const quantityInput = document.getElementById(`${itemName}-quantity`);
+    let currentQuantity = parseInt(quantityInput.value);
+
+    if (action === 'increase') {
+        quantityInput.value = currentQuantity + 1;
+        carrinho[itemName] = (carrinho[itemName] || 0) + 1; // Atualiza o carrinho
+    } else if (action === 'decrease' && currentQuantity > 0) {
+        quantityInput.value = currentQuantity - 1;
+        carrinho[itemName] = (carrinho[itemName] || 0) - 1;
+        if (carrinho[itemName] <= 0) {
+            delete carrinho[itemName]; // Remove do carrinho se a quantidade for zero
+        }
+    }
+
+    atualizarCarrinho(); // Atualiza a interface do carrinho
+}
+
+    // Coordenadas da loja (corretas)
+const restauranteLat = -23.053728555076052;
+const restauranteLng = -46.35365541852709;
+
+// Bloqueia o botão de prosseguir no início
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("btn-continuar").disabled = true;
+});
+
+// Função para obter a localização do usuário
+function obterLocalizacao() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                console.log(`Localização do usuário: ${userLat}, ${userLng}`);
+
+                // Calcula a taxa de entrega com base na localização do usuário
+                calcularTaxaEntrega(userLat, userLng);
+
+                // Habilita o botão de continuar
+                document.getElementById("btn-continuar").disabled = false;
+                document.getElementById("mensagem-alerta").innerText = ""; // Remove mensagem de erro
+            },
+            function (error) {
+                console.error("Erro ao obter localização:", error);
+                document.getElementById("mensagem-alerta").innerText = "⚠️ Você precisa permitir a localização para continuar!";
+                document.getElementById("btn-continuar").disabled = true; // Mantém bloqueado
+            }
+        );
+    } else {
+        alert("Geolocalização não é suportada pelo seu navegador.");
+    }
+}
+
+// Função para calcular a distância e a taxa de entrega
+function calcularTaxaEntrega(lat, lng) {
+    const R = 6371; // Raio da Terra em km
+    const dLat = (lat - restauranteLat) * (Math.PI / 180);
+    const dLng = (lng - restauranteLng) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(restauranteLat * (Math.PI / 180)) * Math.cos(lat * (Math.PI / 180)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distancia = R * c; // Distância em km
+
+    console.log(`Distância até o cliente: ${distancia.toFixed(2)} km`);
+
+    // Definição da taxa de entrega baseada na distância real
+    let taxaEntrega;
+    if (distancia <= 2) {
+        taxaEntrega = 5.00; // Até 2km: R$ 5,00
+    } else if (distancia <= 5) {
+        taxaEntrega = 8.00; // Até 5km: R$ 8,00
+    } else {
+        taxaEntrega = 12.00; // Acima de 5km: R$ 12,00
+    }
+
+    console.log(`Taxa de entrega: R$ ${taxaEntrega.toFixed(2)}`);
+
+    // Exibir a taxa de entrega na tela
+    document.getElementById("taxa-entrega").innerText = `🚚 Taxa de Entrega: R$ ${taxaEntrega.toFixed(2)}`;
+}
+   
+
+
+
+function askAddress() {
+    fecharCarrinho(); // Fecha o carrinho antes de abrir o endereço
+    document.getElementById("popup-endereco").style.display = "flex";
+}
+
+
+        
+        function proceedToOrder() {
+
+    localStorage.setItem("nome", document.getElementById("nome").value);
+    localStorage.setItem("endereco", document.getElementById("endereco").value);
+    localStorage.setItem("bairro", document.getElementById("bairro").value);
+    localStorage.setItem("numero", document.getElementById("numero").value);
+    localStorage.setItem("complemento", document.getElementById("complemento").value);
+    localStorage.setItem("pagamento", document.getElementById("forma-pagamento").value);
+
+    document.getElementById("popup-endereco").style.display = "none";
+    askForExtras();
+
+
+    let orderSummary = "✨ Resumo do Pedido ✨\n\n";
+    let total = 0;
+
+    let items = [
+    // Lanches (27)
+    { name: "Queijo Quente Salada", quantity: parseInt(document.getElementById("Queijo Quente Salada-quantity").value), price: 20.00 },
+    { name: "Queijo Quente", quantity: parseInt(document.getElementById("Queijo Quente-quantity").value), price: 19.00 },
+    { name: "Misto Quente", quantity: parseInt(document.getElementById("Misto Quente-quantity").value), price: 19.00 },
+    { name: "Bauru", quantity: parseInt(document.getElementById("Bauru-quantity").value), price: 20.00 },
+    { name: "Americano", quantity: parseInt(document.getElementById("Americano-quantity").value), price: 22.00 },
+    { name: "Mistão", quantity: parseInt(document.getElementById("Mistão-quantity").value), price: 23.00 },
+    { name: "X-Salada", quantity: parseInt(document.getElementById("X-Salada-quantity").value), price: 22.00 },
+    { name: "X-Bacon", quantity: parseInt(document.getElementById("X-Bacon-quantity").value), price: 26.00 },
+    { name: "X-Burguer", quantity: parseInt(document.getElementById("X-Burguer-quantity").value), price: 21.00 },
+    { name: "X-Burguer Duplo", quantity: parseInt(document.getElementById("X-Burguer Duplo-quantity").value), price: 30.00 },
+    { name: "X-Egg", quantity: parseInt(document.getElementById("X-Egg-quantity").value), price: 24.00 },
+    { name: "X-Bacon Egg", quantity: parseInt(document.getElementById("X-Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Bacon Calabresa", quantity: parseInt(document.getElementById("X-Bacon Calabresa-quantity").value), price: 28.00 },
+    { name: "X-Crock", quantity: parseInt(document.getElementById("X-Crock-quantity").value), price: 24.00 },
+    { name: "Lanche da Casa", quantity: parseInt(document.getElementById("Lanche da Casa-quantity").value), price: 29.00 },
+    { name: "X-Calabresa", quantity: parseInt(document.getElementById("X-Calabresa-quantity").value), price: 22.00 },
+    { name: "X-Tudo", quantity: parseInt(document.getElementById("X-Tudo-quantity").value), price: 35.00 },
+    { name: "X-Frango Crock", quantity: parseInt(document.getElementById("X-Frango Crock-quantity").value), price: 26.00 },
+    { name: "X-Framburguer", quantity: parseInt(document.getElementById("X-Framburguer-quantity").value), price: 32.00 },
+    { name: "X-Frango Bacon Egg", quantity: parseInt(document.getElementById("X-Frango Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Frango", quantity: parseInt(document.getElementById("X-Frango-quantity").value), price: 23.00 },
+    { name: "X-Frango Catupiry", quantity: parseInt(document.getElementById("X-Frango Catupiry-quantity").value), price: 30.00 },
+    { name: "X-Frango Cheddar", quantity: parseInt(document.getElementById("X-Frango Cheddar-quantity").value), price: 30.00 },
+    { name: "X-Frango Catupiry Milho", quantity: parseInt(document.getElementById("X-Frango Catupiry Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Cheddar Milho", quantity: parseInt(document.getElementById("X-Frango Cheddar Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Egg", quantity: parseInt(document.getElementById("X-Frango Egg-quantity").value), price: 25.00 },
+    { name: "X-Frango Bacon", quantity: parseInt(document.getElementById("X-Frango Bacon-quantity").value), price: 25.00 },
+
+    // Porções (8)
+    { name: "Batata Inteira", quantity: parseInt(document.getElementById("BatataInteira-quantity").value), price: 28.00 },
+    { name: "Batata 1/2 Porção", quantity: parseInt(document.getElementById("BatataMeia-quantity").value), price: 17.00 },
+    { name: "Batata Queijo (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoInteira-quantity").value), price: 35.00 },
+    { name: "Batata Queijo (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoMeia-quantity").value), price: 25.00 },
+    { name: "Batata Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataBaconInteira-quantity").value), price: 35.00 },
+    { name: "Batata Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataBaconMeia-quantity").value), price: 25.00 },
+    { name: "Batata Queijo e Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoBaconInteira-quantity").value), price: 40.00 },
+    { name: "Batata Queijo e Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoBaconMeia-quantity").value), price: 30.00 },
+
+    // Refrigerante (1)
+    { name: "Refrigerante", quantity: parseInt(document.getElementById("Refrigerante-quantity").value), price: 5.00 }
+];
+
+// Agora você pode usar esse array para calcular o total ou exibir o resumo do pedido.
+
+
+    items.forEach(item => {
+        if (item.quantity > 0) {
+            total += item.quantity * item.price;
+            orderSummary += `${item.quantity}x ${item.name}\n`;
+        }
+    });
+
+    orderSummary += `<p class="total-destaque">💰 Total: R$ ${total.toFixed(2)}</p>`;
+
+
+    if (!localStorage.getItem("dadosConfirmados")) {
+        orderSummary += `📛 Nome: ${document.getElementById("nome").value}\n`;
+        orderSummary += `📍 Endereço: ${document.getElementById("endereco").value}\n`;
+        orderSummary += `🏘 Bairro: ${document.getElementById("bairro").value}\n`;
+        orderSummary += `💳 Forma de Pagamento: ${document.getElementById("forma-pagamento").value}\n`;
+        localStorage.setItem("dadosConfirmados", "true");
+    }
+
+    document.getElementById("order-summary").innerHTML = orderSummary;
+
+}
+
+
+
+// Atualiza o contador do carrinho
+function atualizarCarrinho() {
+    let contador = document.getElementById("carrinho-contador");
+
+    if (!contador) return; // Evita erro se o elemento não existir
+
+    totalItens = Object.values(carrinho || {}).reduce((acc, curr) => acc + curr, 0);
+    contador.innerText = totalItens;
+}
+
+
+
+
+
+
+// Abre/fecha o carrinho
+function toggleCarrinho() {
+    let popup = document.getElementById("carrinho-popup");
+    let fundoEscuro = document.getElementById("fundo-escuro");
+    let body = document.body;
+
+    if (popup.style.display === "none" || popup.style.display === "") {
+        mostrarCarrinho(); // Atualiza os itens antes de exibir
+        popup.style.display = "block";
+        fundoEscuro.style.display = "block"; // Mostra o fundo escuro
+        body.classList.add("body-bloqueado"); // Bloqueia o fundo
+    } else {
+        popup.style.display = "none";
+        fundoEscuro.style.display = "none"; // Esconde o fundo escuro
+        body.classList.remove("body-bloqueado"); // Desbloqueia o fundo
+    }
+}
+
+// Ajuste a função fecharCarrinho para esconder o fundo escuro também
+function fecharCarrinho() {
+    let popup = document.getElementById("carrinho-popup");
+    let fundoEscuro = document.getElementById("fundo-escuro");
+    let body = document.body;
+
+    popup.style.display = "none"; 
+    fundoEscuro.style.display = "none"; // Esconde o fundo escuro
+    body.classList.remove("body-bloqueado"); // Reativa interações e rolagem
+}
+
+
+
+
+
+// Adiciona item ao carrinho
+function adicionarAoCarrinho(nome) {
+    if (!carrinho[nome]) {
+        carrinho[nome] = 1;
+    } else {
+        carrinho[nome]++;
+    }
+
+    totalItens++;
+    atualizarCarrinho();
+
+    console.log("Itens no carrinho:", carrinho); // Verificar se os itens estão sendo adicionados
+}
+
+
+
+function mostrarCarrinho() {
+    let carrinhoItensDiv = document.getElementById("carrinho-itens");
+    carrinhoItensDiv.innerHTML = ""; // Limpa antes de atualizar
+
+    if (Object.keys(carrinho).length === 0) {
+        carrinhoItensDiv.innerHTML = "<p>Seu carrinho está vazio.</p>";
+        return;
+    }
+
+    let orderSummary = "<h3>.</h3>";
+    Object.entries(carrinho).forEach(([item, quantidade]) => {
+        if (quantidade > 0) {
+            orderSummary += `<p>${quantidade}x ${item}</p>`;
+        }
+    });
+
+    carrinhoItensDiv.innerHTML = orderSummary;
+}
+
+
+    
+// Testando os exemplos
+console.log(formatOrderLine(1, "X-Frango Bacon Egg", 12.90));
+console.log(formatOrderLine(1, "Batata Frita", 8.50));
+console.log(formatOrderLine(1, "Refrigerante", 5.00));
+
+
+// Exemplo de uso:
+console.log(formatOrderLine(2, "X-Frango Bacon Egg", 12.90));
+
+
+
+        function sendToWhatsApp() {
+            let nome = localStorage.getItem("nome") || "-";
+            let endereco = localStorage.getItem("endereco") || "-";
+            let bairro = localStorage.getItem("bairro") || "-";
+            let pagamento = localStorage.getItem("pagamento") || "-";
+            
+            let trocoInfo = sessionStorage.getItem("troco") || "Não informado";
+            sessionStorage.removeItem("troco"); // Apaga o troco após enviar o pedido
+
+            // Limpa o campo de entrada do troco na tela
+            let trocoInput = document.getElementById("valor-troco");
+            if (trocoInput) {
+                trocoInput.value = ""; // Esvazia o campo de input
+            }
+
+            let message = "✨ *RESUMO DO PEDIDO* ✨\n\n";
+            let total = 0;
+
+            let items = [
+    // Lanches (27)
+    { name: "Queijo Quente Salada", quantity: parseInt(document.getElementById("Queijo Quente Salada-quantity").value), price: 20.00 },
+    { name: "Queijo Quente", quantity: parseInt(document.getElementById("Queijo Quente-quantity").value), price: 19.00 },
+    { name: "Misto Quente", quantity: parseInt(document.getElementById("Misto Quente-quantity").value), price: 19.00 },
+    { name: "Bauru", quantity: parseInt(document.getElementById("Bauru-quantity").value), price: 20.00 },
+    { name: "Americano", quantity: parseInt(document.getElementById("Americano-quantity").value), price: 22.00 },
+    { name: "Mistão", quantity: parseInt(document.getElementById("Mistão-quantity").value), price: 23.00 },
+    { name: "X-Salada", quantity: parseInt(document.getElementById("X-Salada-quantity").value), price: 22.00 },
+    { name: "X-Bacon", quantity: parseInt(document.getElementById("X-Bacon-quantity").value), price: 26.00 },
+    { name: "X-Burguer", quantity: parseInt(document.getElementById("X-Burguer-quantity").value), price: 21.00 },
+    { name: "X-Burguer Duplo", quantity: parseInt(document.getElementById("X-Burguer Duplo-quantity").value), price: 30.00 },
+    { name: "X-Egg", quantity: parseInt(document.getElementById("X-Egg-quantity").value), price: 24.00 },
+    { name: "X-Bacon Egg", quantity: parseInt(document.getElementById("X-Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Bacon Calabresa", quantity: parseInt(document.getElementById("X-Bacon Calabresa-quantity").value), price: 28.00 },
+    { name: "X-Crock", quantity: parseInt(document.getElementById("X-Crock-quantity").value), price: 24.00 },
+    { name: "Lanche da Casa", quantity: parseInt(document.getElementById("Lanche da Casa-quantity").value), price: 29.00 },
+    { name: "X-Calabresa", quantity: parseInt(document.getElementById("X-Calabresa-quantity").value), price: 22.00 },
+    { name: "X-Tudo", quantity: parseInt(document.getElementById("X-Tudo-quantity").value), price: 35.00 },
+    { name: "X-Frango Crock", quantity: parseInt(document.getElementById("X-Frango Crock-quantity").value), price: 26.00 },
+    { name: "X-Framburguer", quantity: parseInt(document.getElementById("X-Framburguer-quantity").value), price: 32.00 },
+    { name: "X-Frango Bacon Egg", quantity: parseInt(document.getElementById("X-Frango Bacon Egg-quantity").value), price: 28.00 },
+    { name: "X-Frango", quantity: parseInt(document.getElementById("X-Frango-quantity").value), price: 23.00 },
+    { name: "X-Frango Catupiry", quantity: parseInt(document.getElementById("X-Frango Catupiry-quantity").value), price: 30.00 },
+    { name: "X-Frango Cheddar", quantity: parseInt(document.getElementById("X-Frango Cheddar-quantity").value), price: 30.00 },
+    { name: "X-Frango Catupiry Milho", quantity: parseInt(document.getElementById("X-Frango Catupiry Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Cheddar Milho", quantity: parseInt(document.getElementById("X-Frango Cheddar Milho-quantity").value), price: 32.00 },
+    { name: "X-Frango Egg", quantity: parseInt(document.getElementById("X-Frango Egg-quantity").value), price: 25.00 },
+    { name: "X-Frango Bacon", quantity: parseInt(document.getElementById("X-Frango Bacon-quantity").value), price: 25.00 },
+
+    // Porções (8)
+    { name: "Batata Inteira", quantity: parseInt(document.getElementById("BatataInteira-quantity").value), price: 28.00 },
+    { name: "Batata 1/2 Porção", quantity: parseInt(document.getElementById("BatataMeia-quantity").value), price: 17.00 },
+    { name: "Batata Queijo (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoInteira-quantity").value), price: 35.00 },
+    { name: "Batata Queijo (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoMeia-quantity").value), price: 25.00 },
+    { name: "Batata Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataBaconInteira-quantity").value), price: 35.00 },
+    { name: "Batata Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataBaconMeia-quantity").value), price: 25.00 },
+    { name: "Batata Queijo e Bacon (Inteira)", quantity: parseInt(document.getElementById("BatataQueijoBaconInteira-quantity").value), price: 40.00 },
+    { name: "Batata Queijo e Bacon (1/2 Porção)", quantity: parseInt(document.getElementById("BatataQueijoBaconMeia-quantity").value), price: 30.00 },
+
+    // Refrigerante (1)
+    { name: "Refrigerante", quantity: parseInt(document.getElementById("Refrigerante-quantity").value), price: 5.00 }
+];
+
+// Agora você pode usar esse array para calcular o total ou exibir o resumo do pedido.
+
+
+            items.forEach(item => {
+                if (item.quantity > 0) {
+                    total += item.quantity * item.price;
+                    message += `*${item.quantity}x* ${item.name}\n`;
+                }
+            });
+
+            message += `\n💰 *TOTAL:* R$ ${total.toFixed(2)}\n\n`;
+            message += `📝 *NOME:* ${nome}\n`;
+            message += `📍 *ENDEREÇO:* ${endereco}\n`;
+            message += `🏘️ *BAIRRO:* ${bairro}\n`;
+            message += `💳 *FORMA DE PAGAMENTO:* ${pagamento}\n`;
+
+            if (pagamento === "dinheiro") {
+                message += `💵 *Troco:* ${trocoInfo}\n`;
+            }
+
+            // Fecha o último pop-up antes de abrir o WhatsApp
+            document.getElementById("popup-confirmation").style.display = "none";
+
+            let whatsappUrl = `https://wa.me/5511971624216?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, "_blank");
+        }
+
+
+
+
+        function skipExtras() {
+            document.getElementById("popup-adicionais").style.display = "none"; // Fecha o pop-up de adicionais
+            document.getElementById("popup-confirmation").style.display = "flex"; // Abre o resumo do pedido
+        }
+
+
+
+
+    // Exibe a categoria "lanches" ao carregar a página
+        window.onload = function() {
+            showMenu('lanches');  // Exibe a categoria 'lanches' ao carregar a página
+        };
+
+
+
+        function cancelRequest() {
+            document.getElementById("popup-confirmation").style.display = "none"; // Fecha o popup de confirmação
+        }
+
+        // Exibe a primeira categoria ao carregar a página
+        showMenu('lanches');
+    </script>
+    <div id="fundo-escuro"></div>
+</body>
+</html>
