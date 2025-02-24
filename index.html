@@ -1632,6 +1632,7 @@ input[type="number"] {
     let paymentMethod = document.getElementById("forma-pagamento").value;
     let erroPagamento = document.getElementById("erro-pagamento");
 
+    // Verifica se o cliente escolheu a forma de pagamento
     if (!paymentMethod) {
         erroPagamento.style.display = "block"; // Exibe o aviso de erro
         return; // Impede o avanço
@@ -1641,9 +1642,9 @@ input[type="number"] {
 
     // Verifica se o cliente já aceitou ou negou a localização antes
     if (!localStorage.getItem("localizacaoConfirmada")) {
-        // Exibe um pop-up antes de pedir a localização
+        // Exibe um pop-up antes de pedir a localização (somente na primeira vez)
         if (!confirm("Precisamos da sua localização para calcular a taxa de entrega. Deseja permitir?")) {
-            alert("Você precisa permitir a localização para continuar.");
+            alert("⚠️ Você precisa permitir a localização para continuar.");
             return;
         }
     }
@@ -1660,11 +1661,8 @@ input[type="number"] {
                 // Salva no localStorage que a permissão foi concedida (não perguntará de novo)
                 localStorage.setItem("localizacaoConfirmada", "true");
 
-                // Calcula a taxa de entrega
-                calcularTaxaEntrega(userLat, userLng);
-
-                // Após calcular, segue com o pedido
-                proceedToOrder();
+                // Calcula a taxa de entrega e depois avança para o próximo passo
+                calcularTaxaEntrega(userLat, userLng, proceedToOrder);
             },
             function (error) {
                 console.error("Erro ao obter localização:", error);
@@ -1921,7 +1919,7 @@ function obterLocalizacao() {
 }
 
 // Função para calcular a distância e a taxa de entrega
-function calcularTaxaEntrega(lat, lng) {
+function calcularTaxaEntrega(lat, lng, callback) {
     const R = 6371; // Raio da Terra em km
     const dLat = (lat - restauranteLat) * (Math.PI / 180);
     const dLng = (lng - restauranteLng) * (Math.PI / 180);
@@ -1934,7 +1932,7 @@ function calcularTaxaEntrega(lat, lng) {
 
     console.log(`Distância até o cliente: ${distancia.toFixed(2)} km`);
 
-    // Definição da taxa de entrega baseada na distância real
+    // Definição da taxa de entrega baseada na distância
     let taxaEntrega;
     if (distancia <= 2) {
         taxaEntrega = 5.00; // Até 2km: R$ 5,00
@@ -1948,7 +1946,28 @@ function calcularTaxaEntrega(lat, lng) {
 
     // Exibir a taxa de entrega na tela
     document.getElementById("taxa-entrega").innerText = `🚚 Taxa de Entrega: R$ ${taxaEntrega.toFixed(2)}`;
+
+    // Adicionar a taxa de entrega ao resumo do pedido
+    let orderSummaryElement = document.getElementById("order-summary");
+    let resumoTotalElement = document.getElementById("resumo-total");
+
+    // Capturar o total atual (caso já tenha sido calculado antes)
+    let totalAtual = parseFloat(resumoTotalElement.innerText.replace("R$", "").trim()) || 0;
+    let novoTotal = totalAtual + taxaEntrega;
+
+    // Atualiza o resumo do pedido
+    let resumoAtual = orderSummaryElement.innerHTML;
+    resumoAtual += `<br>🚚 *Taxa de entrega:* R$ ${taxaEntrega.toFixed(2)}`;
+    resumoTotalElement.innerText = `R$ ${novoTotal.toFixed(2)}`;
+
+    orderSummaryElement.innerHTML = resumoAtual;
+
+    // Chama a próxima etapa depois de calcular a taxa de entrega
+    if (callback) {
+        callback();
+    }
 }
+
    
 
 
@@ -1960,8 +1979,7 @@ function askAddress() {
 
 
         
-        function proceedToOrder() {
-
+function proceedToOrder() {
     localStorage.setItem("nome", document.getElementById("nome").value);
     localStorage.setItem("endereco", document.getElementById("endereco").value);
     localStorage.setItem("bairro", document.getElementById("bairro").value);
@@ -1971,7 +1989,6 @@ function askAddress() {
 
     document.getElementById("popup-endereco").style.display = "none";
     askForExtras();
-
 
     let orderSummary = "✨ Resumo do Pedido ✨\n\n";
     let total = 0;
@@ -2023,26 +2040,21 @@ function askAddress() {
 // Agora você pode usar esse array para calcular o total ou exibir o resumo do pedido.
 
 
-    items.forEach(item => {
+items.forEach(item => {
         if (item.quantity > 0) {
             total += item.quantity * item.price;
             orderSummary += `${item.quantity}x ${item.name}\n`;
         }
     });
 
-    orderSummary += `<p class="total-destaque">💰 Total: R$ ${total.toFixed(2)}</p>`;
+    // Adiciona a taxa de entrega ao total
+    let taxaEntrega = parseFloat(document.getElementById("taxa-entrega").innerText.replace("🚚 Taxa de Entrega: R$", "").trim()) || 0;
+    total += taxaEntrega;
+    orderSummary += `🚚 *Taxa de entrega:* R$ ${taxaEntrega.toFixed(2)}\n`;
 
-
-    if (!localStorage.getItem("dadosConfirmados")) {
-        orderSummary += `📛 Nome: ${document.getElementById("nome").value}\n`;
-        orderSummary += `📍 Endereço: ${document.getElementById("endereco").value}\n`;
-        orderSummary += `🏘 Bairro: ${document.getElementById("bairro").value}\n`;
-        orderSummary += `💳 Forma de Pagamento: ${document.getElementById("forma-pagamento").value}\n`;
-        localStorage.setItem("dadosConfirmados", "true");
-    }
+    orderSummary += `\n💰 Total: R$ ${total.toFixed(2)}\n`;
 
     document.getElementById("order-summary").innerHTML = orderSummary;
-
 }
 
 
